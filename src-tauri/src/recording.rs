@@ -1,3 +1,4 @@
+use crate::python;
 use cpal::{
     traits::{DeviceTrait, HostTrait, StreamTrait},
     Stream, StreamConfig,
@@ -9,6 +10,12 @@ enum RecordCommand {
     Start,
     Stop,
     SendData,
+}
+
+pub struct RecordingData {
+    pub channels: u16,
+    pub sample_rate: u32,
+    pub samples: Vec<f32>,
 }
 
 pub struct RecordingThread {
@@ -76,7 +83,11 @@ impl RecordingThread {
                     }
                     Ok(RecordCommand::SendData) => {
                         println!("Recorder: データ送信コマンドを受信。");
-                        println!("audio_buffer: {:?}", audio_buffer);
+                        python::create_wav_file(RecordingData {
+                            channels: config.channels as u16,
+                            sample_rate: config.sample_rate.0,
+                            samples: audio_buffer.clone(),
+                        });
                     }
                     Err(mpsc::TryRecvError::Disconnected) => break,
                     _ => {

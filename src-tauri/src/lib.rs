@@ -1,8 +1,11 @@
 mod commands;
+mod python;
 mod recording;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    python::setup();
+
     let recording_thread = recording::RecordingThread::new();
 
     tauri::Builder::default()
