@@ -10,7 +10,7 @@ enum RecordCommand {
     Stop,
 }
 
-pub struct RecordingThread {
+pub struct Recorder {
     pub channels: u16,
     pub sample_rate: u32,
     audio_buffer: Arc<Mutex<Vec<f32>>>,
@@ -18,7 +18,7 @@ pub struct RecordingThread {
     _handle: thread::JoinHandle<()>,
 }
 
-impl RecordingThread {
+impl Recorder {
     pub fn new() -> Self {
         let (command_sender, command_receiver) = mpsc::channel();
         let command_receiver = Arc::new(Mutex::new(command_receiver));

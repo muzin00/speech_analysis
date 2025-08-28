@@ -1,16 +1,20 @@
 mod commands;
 mod python;
-mod recording;
+mod crates {
+    pub mod recorder;
+}
+
+pub use crates::recorder;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     python::setup();
 
-    let recording_thread = recording::RecordingThread::new();
+    let recorder = recorder::Recorder::new();
 
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .manage(recording_thread)
+        .manage(recorder)
         .invoke_handler(tauri::generate_handler![
             commands::start_recording,
             commands::stop_recording,
