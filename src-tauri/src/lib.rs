@@ -1,10 +1,10 @@
 mod commands;
-mod python;
 mod crates {
+    pub mod python;
     pub mod recorder;
 }
 
-pub use crates::recorder;
+pub use crates::{python, recorder};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
