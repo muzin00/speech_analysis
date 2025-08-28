@@ -1,6 +1,11 @@
-use crate::recording::RecordingData;
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
+
+pub struct RecordingData {
+    pub channels: u16,
+    pub sample_rate: u32,
+    pub samples: Vec<f32>,
+}
 
 pub fn setup() {
     // Pythonインタープリタを初期化

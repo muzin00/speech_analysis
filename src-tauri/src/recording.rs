@@ -1,4 +1,3 @@
-use crate::python;
 use cpal::{
     traits::{DeviceTrait, HostTrait, StreamTrait},
     Stream, StreamConfig,
@@ -9,47 +8,47 @@ use std::thread;
 enum RecordCommand {
     Start,
     Stop,
-    SendData,
-}
-
-pub struct RecordingData {
-    pub channels: u16,
-    pub sample_rate: u32,
-    pub samples: Vec<f32>,
 }
 
 pub struct RecordingThread {
-    _handle: thread::JoinHandle<()>,
+    pub channels: u16,
+    pub sample_rate: u32,
+    audio_buffer: Arc<Mutex<Vec<f32>>>,
     command_sender: mpsc::Sender<RecordCommand>,
+    _handle: thread::JoinHandle<()>,
 }
 
 impl RecordingThread {
     pub fn new() -> Self {
         let (command_sender, command_receiver) = mpsc::channel();
         let command_receiver = Arc::new(Mutex::new(command_receiver));
+        let audio_buffer = Arc::new(Mutex::new(Vec::new()));
+        let audio_buffer_clone = audio_buffer.clone();
+
+        let host = cpal::default_host();
+        let device = host
+            .default_input_device()
+            .expect("入力デバイスが見つかりません");
+
+        let supported_config = device
+            .supported_input_configs()
+            .unwrap()
+            .next()
+            .expect("サポートされている構成がありません")
+            .with_max_sample_rate();
+
+        let config: StreamConfig = supported_config.into();
+        let channels = config.channels as u16; // チャンネル数
+        let sample_rate = config.sample_rate.0; // サンプルレート
 
         let handle = thread::spawn(move || {
-            let host = cpal::default_host();
-            let device = host
-                .default_input_device()
-                .expect("入力デバイスが見つかりません");
-
-            let supported_config = device
-                .supported_input_configs()
-                .unwrap()
-                .next()
-                .expect("サポートされている構成がありません")
-                .with_max_sample_rate();
-
-            let config: StreamConfig = supported_config.into();
-
             let mut stream: Option<Stream> = None; // ストリームを保持
-            let mut audio_buffer: Vec<f32> = Vec::new(); // ここでデータを保持
             let (data_sender, data_receiver) = mpsc::channel::<Vec<f32>>();
 
             loop {
                 // CPALからデータを受け取る
                 while let Ok(data) = data_receiver.try_recv() {
+                    let mut audio_buffer = audio_buffer_clone.lock().unwrap();
                     audio_buffer.extend_from_slice(&data);
                 }
 
@@ -81,14 +80,6 @@ impl RecordingThread {
                             stream.pause().unwrap();
                         }
                     }
-                    Ok(RecordCommand::SendData) => {
-                        println!("Recorder: データ送信コマンドを受信。");
-                        python::create_wav_file(RecordingData {
-                            channels: config.channels as u16,
-                            sample_rate: config.sample_rate.0,
-                            samples: audio_buffer.clone(),
-                        });
-                    }
                     Err(mpsc::TryRecvError::Disconnected) => break,
                     _ => {
                         // 一定サイズに達したら自動的に送信
@@ -98,8 +89,11 @@ impl RecordingThread {
         });
 
         Self {
-            _handle: handle,
+            channels,
+            sample_rate,
+            audio_buffer,
             command_sender,
+            _handle: handle,
         }
     }
 
@@ -117,10 +111,8 @@ impl RecordingThread {
         Ok(())
     }
 
-    pub fn send_data(&self) -> Result<(), String> {
-        self.command_sender
-            .send(RecordCommand::SendData)
-            .map_err(|e| e.to_string())?;
-        Ok(())
+    pub fn data(&self) -> Result<Vec<f32>, String> {
+        let audio_buffer = self.audio_buffer.lock().unwrap();
+        Ok(audio_buffer.clone())
     }
 }

@@ -1,3 +1,4 @@
+use crate::python::{create_wav_file, RecordingData};
 use crate::recording::RecordingThread;
 use tauri::State;
 
@@ -15,6 +16,10 @@ pub fn stop_recording(recording_thread: State<RecordingThread>) -> Result<(), St
 
 #[tauri::command]
 pub fn send_recording_data(recording_thread: State<RecordingThread>) -> Result<(), String> {
-    recording_thread.send_data()?;
+    create_wav_file(RecordingData {
+        channels: recording_thread.channels,
+        sample_rate: recording_thread.sample_rate,
+        samples: recording_thread.data().unwrap(),
+    });
     Ok(())
 }
