@@ -1,4 +1,5 @@
 mod commands {
+    pub mod handler;
     pub mod recording;
 }
 
@@ -18,11 +19,7 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .manage(recorder)
-        .invoke_handler(tauri::generate_handler![
-            commands::recording::start_recording,
-            commands::recording::stop_recording,
-            commands::recording::send_recording_data,
-        ])
+        .invoke_handler(tauri::generate_handler![commands::handler::root_handler])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
