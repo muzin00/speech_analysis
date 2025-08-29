@@ -1,4 +1,7 @@
-mod commands;
+mod commands {
+    pub mod recording;
+}
+
 mod crates {
     pub mod python;
     pub mod recorder;
@@ -16,9 +19,9 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .manage(recorder)
         .invoke_handler(tauri::generate_handler![
-            commands::start_recording,
-            commands::stop_recording,
-            commands::send_recording_data,
+            commands::recording::start_recording,
+            commands::recording::stop_recording,
+            commands::recording::send_recording_data,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
