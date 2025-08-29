@@ -1,4 +1,4 @@
-import { TauriCommand } from './lib/tauri-command';
+import { TauriCommand } from '@/lib/tauri-command';
 
 declare global {
     interface Window {
