@@ -4,17 +4,17 @@ import { ref } from 'vue';
 const isRecording = ref(false);
 
 async function startRecording() {
-  await window.tauriCommand.invoke('start_recording');
+  await window.tauriCommand.invoke('/recording/start');
   isRecording.value = true;
 }
 
 async function stopRecording() {
-  await window.tauriCommand.invoke('stop_recording');
+  await window.tauriCommand.invoke('/recording/stop');
   isRecording.value = false;
 }
 
 async function sendRecordingData() {
-  await window.tauriCommand.invoke('send_recording_data');
+  await window.tauriCommand.invoke('/recording/send_data');
 }
 </script>
 

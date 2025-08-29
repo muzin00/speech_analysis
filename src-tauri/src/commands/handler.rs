@@ -13,9 +13,9 @@ pub fn root_handler(request: Request, app_handle: AppHandle) -> Result<(), Strin
     let recorder = app_handle.state::<Recorder>();
 
     match path.to_str().unwrap() {
-        "start_recording" => commands::recording::start(recorder),
-        "stop_recording" => commands::recording::stop(recorder),
-        "send_recording_data" => commands::recording::send_data(recorder),
+        "/recording/start" => commands::recording::start(recorder),
+        "/recording/stop" => commands::recording::stop(recorder),
+        "/recording/send_data" => commands::recording::send_data(recorder),
         _ => return Err("Invalid path".to_string()),
     }
 }
