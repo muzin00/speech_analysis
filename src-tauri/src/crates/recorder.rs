@@ -31,11 +31,8 @@ impl Recorder {
             .expect("入力デバイスが見つかりません");
 
         let supported_config = device
-            .supported_input_configs()
-            .unwrap()
-            .next()
-            .expect("サポートされている構成がありません")
-            .with_max_sample_rate();
+            .default_input_config()
+            .expect("入力デバイス設定が見つかりません");
 
         let config: StreamConfig = supported_config.into();
         let channels = config.channels as u16; // チャンネル数
