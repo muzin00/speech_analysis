@@ -2,7 +2,7 @@
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "speech_analysis",
   "version": "0.1.0",
-  "identifier": "com.myusuke.speech_analysis",
+  "identifier": "com.myusuke.speech-analysis",
   "build": {
     "beforeDevCommand": "pnpm dev",
     "devUrl": "http://localhost:1420",
