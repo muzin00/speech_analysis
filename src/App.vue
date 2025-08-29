@@ -1,21 +1,20 @@
 <script setup lang="ts">
-import { invoke } from '@tauri-apps/api/core';
 import { ref } from 'vue';
 
 const isRecording = ref(false);
 
 async function startRecording() {
-  await invoke('start_recording');
+  await window.tauriCommand.invoke('start_recording');
   isRecording.value = true;
 }
 
 async function stopRecording() {
-  await invoke('stop_recording');
+  await window.tauriCommand.invoke('stop_recording');
   isRecording.value = false;
 }
 
 async function sendRecordingData() {
-  await invoke('send_recording_data');
+  await window.tauriCommand.invoke('send_recording_data');
 }
 </script>
 
